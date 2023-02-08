@@ -28,36 +28,36 @@ struct TransactionData{
     string stoptByte = "FF";
 };
 
-std::string float_to_hex( float f )
+string float_to_hex( float f )
 {
     static_assert( numeric_limits<float>::is_iec559,"native float must be an IEEE float" ) ;
 
     union { float fval ; uint32_t ival ; };
     fval = f ;
 
-    std::ostringstream stm ;
-    stm << hex << std::uppercase << ival ;
+    ostringstream stm ;
+    stm << hex << uppercase << ival ;
 
     return stm.str() ;
 }
 
-uint32_t getTimeStamp(const std::string& timeString)
+uint32_t getTimeStamp(const string& timeString)
 {
-    std::tm t{};
-    std::istringstream ss(timeString);
+    tm t{};
+    istringstream ss(timeString);
 
-    ss >> std::get_time(&t, "%Y:%m:%d %H:%M:%S");
+    ss >> get_time(&t, "%Y:%m:%d %H:%M:%S");
     if (ss.fail()) {
-        throw std::runtime_error{"failed to parse time string"};
+        throw runtime_error{"failed to parse time string"};
     }   
-    std::time_t time_stamp = mktime(&t);
+    time_t time_stamp = mktime(&t);
     return time_stamp;
 }
 
 string int_to_str_hex(int value){
-    std::stringstream ss;
-    ss<< std::hex << value; // int decimal_value
-    std::string res ( ss.str() );
+    stringstream ss;
+    ss<< hex << value; // int decimal_value
+    string res ( ss.str() );
     if(value < 16) res.insert(0,"0");
     return res;
 }
