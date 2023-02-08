@@ -74,10 +74,17 @@ int main(int argc, char *argv[])
     string filename = argc > 1 ? argv[1] : "dust_aqi.csv";
     string outFileName = argc > 2 ? argv[2] : " hex_packet.dat";
 
+    ofstream logOutFile("task3.log");
+    if (!logOutFile)
+    {
+        cout << "Error: unable to open output file.\n";
+        return 1;
+    }
+    
     ifstream file(filename);
     if (!file.is_open())
     {
-        cout << "Error 01: file not found or cannot be accessed";
+        logOutFile << "Error 01: file not found or cannot be accessed";
         return 0;
     }
 
@@ -85,26 +92,31 @@ int main(int argc, char *argv[])
 
     string line;
     getline(file, line);
-    while (getline(file, line))
+    if (!line.compare("id,time,values,aqi,pollution"))
     {
-        istringstream ss(line);
-        int id;
-        string timestamp;
-        double value;
-        char comma, comma2, comma3, comma4;;
-        int aqi;
-        string pollution;
-
-        SensorData tmp;
-        if (ss >> tmp.id >> comma && getline(ss, tmp.timestamp, ',') && ss >> tmp.value >> comma3 >> tmp.aqi >> comma4 && getline(ss, tmp.pollution, ','))
-        {
-            data.push_back(tmp);
-        }
-        else
-        {
-            cout << "Error parsing line, skipping:\n"<< line << "\n";
-        }
+        logOutFile << "Error 02: invalid csv file\n";
     }
+    else
+        while (getline(file, line))
+        {
+            istringstream ss(line);
+            int id;
+            string timestamp;
+            double value;
+            char comma, comma2, comma3, comma4;;
+            int aqi;
+            string pollution;
+
+            SensorData tmp;
+            if (ss >> tmp.id >> comma && getline(ss, tmp.timestamp, ',') && ss >> tmp.value >> comma3 >> tmp.aqi >> comma4 && getline(ss, tmp.pollution, ','))
+            {
+                data.push_back(tmp);
+            }
+            else
+            {
+                logOutFile << "Error 03: data is missing at line \n"<< line << "\n";
+            }
+        }
 
     file.close();
 
