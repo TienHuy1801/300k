@@ -42,6 +42,8 @@ struct StatisticsData
     int duration;
 };
 
+const string POLLUTION[7] = {"Good", "Moderate", "Slightly unhealthy", "Unhealthy", "Very unhealthy", "Hazardous", "Extremely Hazardous"};
+
 bool isDateValid(const string &date)
 {
     regex pattern("\\d{4}:\\d{2}:\\d{2} \\d{2}:\\d{2}:\\d{2}");
@@ -150,37 +152,37 @@ vector<AqiData> processTask22(vector<SensorData> data, ofstream &logOutFile)
         double aqi;
         if (avg < 12)
         {
-            pollution = "Good";
+            pollution = POLLUTION[0];
             aqi = floorf((rand() / (float)RAND_MAX) * 50 * 10) / 10;
         }
         else if (avg < 35.5)
         {
-            pollution = "Moderate";
+            pollution = POLLUTION[1];
             aqi = floorf((rand() / (float)RAND_MAX) * (100 - 50) * 10 + 50 * 10) / 10;
         }
         else if (avg < 55.5)
         {
-            pollution = "Slightly unhealthy";
+            pollution = POLLUTION[2];
             aqi = floorf((rand() / (float)RAND_MAX) * (150 - 100) * 10 + 100 * 10) / 10;
         }
         else if (avg < 150.5)
         {
-            pollution = "Unhealthy";
+            pollution = POLLUTION[3];
             aqi = floorf((rand() / (float)RAND_MAX) * (200 - 150) * 10 + 150 * 10) / 10;
         }
         else if (avg < 250.5)
         {
-            pollution = "Very unhealthy";
+            pollution = POLLUTION[4];
             aqi = floorf((rand() / (float)RAND_MAX) * (300 - 200) * 10 + 200 * 10) / 10;
         }
         else if (avg < 350.5)
         {
-            pollution = "Hazardous";
+            pollution = POLLUTION[5];
             aqi = floorf((rand() / (float)RAND_MAX) * (400 - 300) * 10 + 300 * 10) / 10;
         }
         else if (avg < 550.5)
         {
-            pollution = "Extremely Hazardous";
+            pollution = POLLUTION[6];
             aqi = floorf((rand() / (float)RAND_MAX) * (500 - 400) * 10 + 300 * 10) / 10;
         }
         aqis.push_back({it->first.second, it->first.first + ":00:00", avg, aqi, pollution});
@@ -231,10 +233,7 @@ vector<SummaryData> processTask23(vector<SensorData> data, ofstream &logOutFile)
     tm endTm = {};
     strptime(startTime.c_str(), "%Y:%m:%d %H:%M:%S", &startTm);
     strptime(endTime.c_str(), "%Y:%m:%d %H:%M:%S", &endTm);
-
-    cout << startTime;
-    cout << endTime;
-    double duration = difftime(mktime(&startTm), mktime(&endTm)) / 3600;
+    int duration = difftime(mktime(&endTm), mktime(&startTm)) / 3600;
 
     vector<SummaryData> summary;
     summary.clear();
@@ -262,17 +261,23 @@ vector<StatisticsData> processTask24(vector<AqiData> data, ofstream &logOutFile)
     {
         logOutFile << "Error: Unable to create file task 2.4\n";
     }
+    int maxId = 0;
     map<pair<int, string>, int> count;
     for (const AqiData &record : data)
     {
+        if (maxId < record.id)
+            maxId = record.id;
         count[{record.id, record.pollution}]++;
     }
     vector<StatisticsData> statistics;
     statistics.clear();
 
-    for (auto it = count.begin(); it != count.end(); ++it)
+    for (int i = 1; i <= maxId; i++)
     {
-        statistics.push_back({it->first.first, it->first.second, it->second});
+        for (string pollution : POLLUTION)
+        {
+            statistics.push_back({i, pollution, count[{i, pollution}]});
+        }
     }
     outFile << "id,pollution,duration\n";
     for (const StatisticsData &record : statistics)
