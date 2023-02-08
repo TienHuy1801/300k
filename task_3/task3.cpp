@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
 {
     // Reading data from file name provided as command line argument.
     string filename = argc > 1 ? argv[1] : "dust_aqi.csv";
+    string outFileName = argc > 2 ? argv[2] : " hex_packet.dat";
+
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -117,11 +119,21 @@ int main(int argc, char *argv[])
         transData.push_back(newTransData);
     }
 
+    ofstream outFile(outFileName);
+    if (!outFile)
+    {
+        cerr << "Error: unable to open output file.\n";
+        return 1;
+    }
+
+
     for(TransactionData tmp : transData){
         string res = "";
         res+= tmp.startByte + int_to_str_hex(tmp.id)+  int_to_str_hex(getTimeStamp(tmp.time)) + float_to_hex(tmp.PM2_5Concentration) + int_to_str_hex(tmp.aqi) + tmp.stoptByte;
         transform(res.begin(), res.end(),res.begin(), ::toupper);
-        cout<< parse_string_format(res) << endl; 
+        outFile<< parse_string_format(res) << endl; 
     }
+
+    outFile.close();
     return 0;
 }
