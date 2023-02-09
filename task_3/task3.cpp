@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
 
     string line;
     getline(file, line);
-    if (!line.compare("id,time,values,aqi,pollution"))
+    if (!line.compare("id,time,values,aqi,pollution" )&& !(line == "id,time,values,aqi,pollution"))
     {
         logOutFile << "Error 02: invalid csv file\n";
     }

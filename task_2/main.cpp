@@ -3,12 +3,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#define _XOPEN_SOURCE
 #include <time.h>
 #include <regex>
 #include <map>
 #include <cmath>
 #include <chrono>
-
+#include <iomanip>
 using namespace std;
 
 struct SensorData
@@ -229,11 +230,24 @@ vector<SummaryData> processTask23(vector<SensorData> data, ofstream &logOutFile)
         count[record.id]++;
     }
 
-    tm startTm = {};
-    tm endTm = {};
-    strptime(startTime.c_str(), "%Y:%m:%d %H:%M:%S", &startTm);
-    strptime(endTime.c_str(), "%Y:%m:%d %H:%M:%S", &endTm);
-    int duration = difftime(mktime(&endTm), mktime(&startTm)) / 3600;
+    tm start_tm;
+    tm end_tm;
+
+    // Parse the start and end time strings into a `tm` structure
+    stringstream ss_start(startTime);
+    ss_start >> get_time(&start_tm, "%Y:%m:%d %H:%M:%S"); 
+    stringstream ss_end(endTime);
+    ss_end >> get_time(&end_tm, "%Y:%m:%d %H:%M:%S"); 
+    
+    // Calculate the difference between the two times
+    double diff = difftime(mktime(&end_tm), mktime(&start_tm));  
+    int duration = ((diff/60)/60);
+
+    // tm startTm = {};
+    // tm endTm = {};
+    // strptime(startTime.c_str(), "%Y:%m:%d %H:%M:%S", &startTm);
+    // strptime(endTime.c_str(), "%Y:%m:%d %H:%M:%S", &endTm);
+    // int duration = difftime(mktime(&endTm), mktime(&startTm)) / 3600;
 
     vector<SummaryData> summary;
     summary.clear();
